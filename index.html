@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>研发样件批次管理系统</title>
+<style>
+*{box-sizing:border-box;font-family:system-ui,Microsoft YaHei}
+body{max-width:1380px;margin:12px auto;padding:12px;background:#f5f7fa}
+.box{background:#fff;padding:16px 20px;margin-bottom:14px;border-radius:6px;border:1px solid #d8dde6}
+h3{margin:0 0 12px 0;color:#234370;font-size:17px}
+h2{text-align:center;font-size:20px;margin:8px 0 16px}
+.row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:8px 0}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0}
+@media(max-width:820px){
+  .row{grid-template-columns:1fr 1fr}
+}
+@media(max-width:580px){
+  .row,.row2{grid-template-columns:1fr}
+}
+label{display:block;font-size:13px;margin-bottom:4px;color:#444}
+input,select,textarea{width:100%;padding:8px;border:1px solid #bbbbbb;border-radius:4px;font-size:14px}
+textarea{min-height:86px;resize:vertical}
+button{padding:6px 10px;border:none;border-radius:4px;color:#fff;cursor:pointer;margin:2px}
+button.del{background:#c52222}
+button.searchBtn{background:#368448}
+button.inBtn{background:#2385bb}
+button.outBtn{background:#e67722}
+button.infoBtn{background:#6644aa}
+button.editFlowBtn{background:#279989}
+table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
+th,td{border:1px solid #cccccc;padding:8px;text-align:left}
+th{background:#e9edf4}
+.wrap{white-space:pre-wrap;max-width:140px}
+.search-bar{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+#searchKey{max-width:320px}
+.stock{color:#0066cc;font-weight:bold}
+.modal-mask{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);display:none;align-items:center;justify-content:center;z-index:999}
+.modal{background:#fff;padding:20px;border-radius:8px;min-width:520px;max-width:92vw;max-height:92vh;overflow:auto}
+.modal h4{margin-top:0}
+.form-item{margin-bottom:10px;}
+pre{background:#f4f6f8;padding:8px;white-space:pre-wrap;}
+.tip{color:#888;font-size:12px}
+</style>
+</head>
+<body>
+<h2>研发样件批次管理系统</h2>
+
+<div class="box">
+<h3>新增样件批次</h3>
+<div class="row">
+  <div>
+    <label>批次号</label>
+    <input id="batchNo" placeholder="例如：P20260917‑01">
+  </div>
+  <div>
+    <label>项目</label>
+    <input id="project" placeholder="项目名称">
+  </div>
+  <div>
+    <label>产品类型</label>
+    <input id="productType" placeholder="产品型号">
+  </div>
+  <div>
+    <label>总合格数量(件)</label>
+    <input id="totalQty" placeholder="批次初始合格样件数" type="number">
+  </div>
+</div>
+
+<h3 style="margin-top:16px">零部件状态</h3>
+<div class="row">
+  <div>
+    <label>上盖板</label>
+    <select id="partTopCover">
+      <option value="">请选择</option>
+      <option>简易模具</option>
+      <option>T1样件</option>
+      <option>T2样件</option>
+      <option>OTS件</option>
+      <option>PPAP件</option>
+    </select>
+  </div>
+  <div>
+    <label>下底板</label>
+    <select id="partBottomPlate">
+      <option value="">请选择</option>
+      <option>简易模具</option>
+      <option>T1样件</option>
+      <option>T2样件</option>
+      <option>OTS件</option>
+      <option>PPAP件</option>
+    </select>
+  </div>
+  <div>
+    <label>叠片</label>
+    <select id="partLaminate">
+      <option value="">请选择</option>
+      <option>简易模具</option>
+      <option>T1样件</option>
+      <option>T2样件</option>
+      <option>OTS件</option>
+      <option>PPAP件</option>
+    </select>
+  </div>
+  <div>
+    <label>水管</label>
+    <select id="partWaterPipe">
+      <option value="">请选择</option>
+      <option>简易模具</option>
+      <option>T1样件</option>
+      <option>T2样件</option>
+      <option>OTS件</option>
+      <option>PPAP件</option>
+    </select>
+  </div>
+</div>
+
+<h3 style="margin-top:16px">工艺状态</h3>
+<div class="row2">
+  <div>
+    <label>工艺类型</label>
+    <select id="procType">
+      <option value="">请选择</option>
+      <option>手工样件</option>
+      <option>工装样件</option>
+    </select>
+  </div>
+  <div>
+    <label>工艺备注</label>
+    <input id="procRemark" placeholder="钎焊炉、装配方式等补充说明">
+  </div>
+</div>
+
+<h3 style="margin-top:16px">质量确认状态</h3>
+<div class="row">
+  <div>
+    <label>炉温</label>
+    <select id="qualityOven">
+      <option value="">请选择</option>
+      <option>OK</option>
+      <option>NG</option>
+      <option>待确认</option>
+    </select>
+  </div>
+  <div>
+    <label>尺寸</label>
+    <select id="qualityDim">
+      <option value="">请选择</option>
+      <option>OK</option>
+      <option>NG</option>
+      <option>待确认</option>
+    </select>
+  </div>
+  <div>
+    <label>撕裂</label>
+    <select id="qualityTear">
+      <option value="">请选择</option>
+      <option>OK</option>
+      <option>NG</option>
+      <option>待确认</option>
+    </select>
+  </div>
+</div>
+<div class="row2">
+  <div>
+    <label>其它质量备注(泄露、水检、干检等)</label>
+    <textarea id="qualityRemark" placeholder="填写泄露、水检、干检、不良现象等"></textarea>
+  </div>
+  <div>
+    <label>样件流转记录</label>
+    <textarea id="flowRecord" readonly placeholder="流转记录通过列表按钮操作"></textarea>
+  </div>
+</div>
+
+<button onclick="addBatch()">保存批次</button>
+<button onclick="clearForm()">清空表单</button>
+</div>
+
+<div class="box">
+<h3>已保存批次列表</h3>
+<div class="search-bar">
+  <input id="searchKey" placeholder="输入批次号/项目名称查询" oninput="filterTable()">
+  <button class="searchBtn" onclick="filterTable()">查询</button>
+  <button onclick="resetSearch()">重置查询</button>
+</div>
+
+<table>
+<thead>
+<tr>
+<th>批次号</th>
+<th>项目</th>
+<th>产品类型</th>
+<th>总合格数</th>
+<th>剩余库存</th>
+<th>零部件状态</th>
+<th>工艺状态</th>
+<th>质量确认</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody id="tableBody"></tbody>
+</table>
+</div>
+
+<!--入库弹窗（带日期选择器）-->
+<div class="modal-mask" id="modalIn">
+<div class="modal">
+<h4>样件入库</h4>
+<input type="hidden" id="curBatchIdxIn">
+<div class="form-item">
+  <label>流转日期（日历选择）</label>
+  <input type="date" id="inDate">
+</div>
+<div class="form-item">
+  <label>入库数量</label>
+  <input type="number" id="inNum" min="1">
+</div>
+<div class="form-item">
+  <label>入库原因/位置说明</label>
+  <textarea id="inDesc"></textarea>
+</div>
+<div>
+<button class="inBtn" onclick="submitIn()">确认入库</button>
+<button onclick="closeModal('modalIn')">取消</button>
+</div>
+</div>
+</div>
+
+<!--出库弹窗（带日期选择器）-->
+<div class="modal-mask" id="modalOut">
+<div class="modal">
+<h4>样件出库</h4>
+<input type="hidden" id="curBatchIdxOut">
+<div class="form-item">
+  <label>流转日期（日历选择）</label>
+  <input type="date" id="outDate">
+</div>
+<div class="form-item">
+  <label>出库数量</label>
+  <input type="number" id="outNum" min="1">
+</div>
+<div class="form-item">
+  <label>领用用途/存放位置</label>
+  <textarea id="outDesc"></textarea>
+</div>
+<div>
+<button class="outBtn" onclick="submitOut()">确认出库</button>
+<button onclick="closeModal('modalOut')">取消</button>
+</div>
+</div>
+</div>
+
+<!--编辑全部流转记录弹窗，可以直接编辑文本-->
+<div class="modal-mask" id="modalEditFlow">
+<div class="modal">
+<h4>编辑全部流转记录</h4>
+<input type="hidden" id="curBatchIdxEditFlow">
+<p class="tip">格式：日期｜流入｜流出｜说明，每行一条，修改保存后库存自动重新计算</p>
+<div class="form-item">
+<textarea id="editFlowText" style="min-height:260px"></textarea>
+</div>
+<div>
+<button class="editFlowBtn" onclick="submitEditFlow()">保存修改</button>
+<button onclick="closeModal('modalEditFlow')">取消</button>
+</div>
+</div>
+</div>
+
+<!--详情弹窗-->
+<div class="modal-mask" id="modalDetail">
+<div class="modal">
+<h4>批次详细信息 &amp; 完整流转记录</h4>
+<div id="detailContent"></div>
+<div style="margin-top:10px">
+<button onclick="closeModal('modalDetail')">关闭</button>
+</div>
+</div>
+</div>
+
+<script>
+let batchList=JSON.parse(localStorage.getItem("sampleBatchNew")||'[]');
+let searchText = "";
+
+//计算库存
+function calcStock(total,flowText){
+  const totalNum = Number(total)||0;
+  let inSum=0,outSum=0;
+  const lines = flowText.split('\n');
+  lines.forEach(line=>{
+    const arr = line.split('｜');
+    if(arr.length>=3){
+      const inVal = Number(arr[1])||0;
+      const outVal = Number(arr[2])||0;
+      inSum += inVal;
+      outSum += outVal;
+    }
+  })
+  return totalNum + inSum - outSum;
+}
+
+//获取今天的date字符串 YYYY‑MM‑DD
+function getTodayDateStr(){
+  const d=new Date();
+  const y=d.getFullYear();
+  const m=String(d.getMonth()+1).padStart(2,'0');
+  const day=String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+//把YYYY‑MM‑DD转换为 月‑日
+function formatMD(dateStr){
+  if(!dateStr)return '';
+  const arr=dateStr.split('-');
+  return `${Number(arr[1])}-${Number(arr[2])}`;
+}
+
+function render(){
+  let showList = batchList;
+  if(searchText.trim()!==''){
+    const kw = searchText.toLowerCase();
+    showList = batchList.filter(item=>{
+      return (item.batchNo||'').toLowerCase().includes(kw)
+        || (item.project||'').toLowerCase().includes(kw);
+    })
+  }
+  const tb=document.getElementById('tableBody');
+  tb.innerHTML='';
+  showList.forEach((item)=>{
+    const realIndex = batchList.indexOf(item);
+    const stockVal = calcStock(item.totalQty, item.flowRecord||'');
+    const partText = `上盖板:${item.partTopCover||'-'}\n下底板:${item.partBottomPlate||'-'}\n叠片:${item.partLaminate||'-'}\n水管:${item.partWaterPipe||'-'}`;
+    const qualityText = `炉温:${item.qualityOven||'-'} 尺寸:${item.qualityDim||'-'} 撕裂:${item.qualityTear||'-'}`;
+    const procText = `${item.procType||'-'} ${item.procRemark||''}`;
+
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td>${item.batchNo||''}</td>
+      <td>${item.project||''}</td>
+      <td>${item.productType||''}</td>
+      <td>${item.totalQty||0}</td>
+      <td class="stock">${stockVal}</td>
+      <td class="wrap">${partText}</td>
+      <td class="wrap">${procText}</td>
+      <td class="wrap">${qualityText}</td>
+      <td>
+        <button class="inBtn" onclick="openIn(${realIndex})">入库</button>
+        <button class="outBtn" onclick="openOut(${realIndex})">出库</button>
+        <button class="editFlowBtn" onclick="openEditFlow(${realIndex})">编辑流转</button>
+        <button class="infoBtn" onclick="openDetail(${realIndex})">详情</button>
+        <button class="del" onclick="del(${realIndex})">删除</button>
+      </td>
+    `;
+    tb.appendChild(tr);
+  })
+}
+
+function openModal(id){
+  document.getElementById(id).style.display='flex';
+}
+function closeModal(id){
+  document.getElementById(id).style.display='none';
+}
+
+//入库
+function openIn(idx){
+  document.getElementById('curBatchIdxIn').value=idx;
+  document.getElementById('inDate').value=getTodayDateStr();
+  document.getElementById('inNum').value='';
+  document.getElementById('inDesc').value='';
+  openModal('modalIn');
+}
+function submitIn(){
+  const idx=Number(document.getElementById('curBatchIdxIn').value);
+  const dateVal=document.getElementById('inDate').value;
+  const num=Number(document.getElementById('inNum').value);
+  const desc=document.getElementById('inDesc').value.trim();
+  if(!dateVal){alert('请选择流转日期');return;}
+  if(!num||num<=0){alert('请输入合法入库数量');return;}
+  const line = `${formatMD(dateVal)}｜${num}｜0｜${desc}`;
+  batchList[idx].flowRecord = (batchList[idx].flowRecord||'') + (batchList[idx].flowRecord?"\n":"") + line;
+  save();render();closeModal('modalIn');
+}
+
+//出库
+function openOut(idx){
+  document.getElementById('curBatchIdxOut').value=idx;
+  document.getElementById('outDate').value=getTodayDateStr();
+  document.getElementById('outNum').value='';
+  document.getElementById('outDesc').value='';
+  openModal('modalOut');
+}
+function submitOut(){
+  const idx=Number(document.getElementById('curBatchIdxOut').value);
+  const dateVal=document.getElementById('outDate').value;
+  const num=Number(document.getElementById('outNum').value);
+  const desc=document.getElementById('outDesc').value.trim();
+  if(!dateVal){alert('请选择流转日期');return;}
+  if(!num||num<=0){alert('请输入合法出库数量');return;}
+  const stockNow = calcStock(batchList[idx].totalQty,batchList[idx].flowRecord||'');
+  if(num>stockNow){alert(`库存不足！当前库存：${stockNow}`);return;}
+  const line = `${formatMD(dateVal)}｜0｜${num}｜${desc}`;
+  batchList[idx].flowRecord = (batchList[idx].flowRecord||'') + (batchList[idx].flowRecord?"\n":"") + line;
+  save();render();closeModal('modalOut');
+}
+
+//编辑全部流转记录弹窗
+function openEditFlow(idx){
+  document.getElementById('curBatchIdxEditFlow').value=idx;
+  document.getElementById('editFlowText').value = batchList[idx].flowRecord||'';
+  openModal('modalEditFlow');
+}
+function submitEditFlow(){
+  const idx=Number(document.getElementById('curBatchIdxEditFlow').value);
+  const newText = document.getElementById('editFlowText').value;
+  batchList[idx].flowRecord = newText;
+  save();render();closeModal('modalEditFlow');
+}
+
+//详情弹窗
+function openDetail(idx){
+  const item = batchList[idx];
+  const stockVal = calcStock(item.totalQty,item.flowRecord||'');
+  const html=`
+  <p><strong>批次号：</strong>${item.batchNo||''}</p>
+  <p><strong>项目：</strong>${item.project||''}</p>
+  <p><strong>产品类型：</strong>${item.productType||''}</p>
+  <p><strong>总合格数量：</strong>${item.totalQty||0}</p>
+  <p><strong>当前剩余库存：</strong><span class="stock">${stockVal}</span></p>
+  <hr/>
+  <p><strong>零部件状态</strong></p>
+  <p>上盖板：${item.partTopCover||'-'}；下底板：${item.partBottomPlate||'-'}</p>
+  <p>叠片：${item.partLaminate||'-'}；水管：${item.partWaterPipe||'-'}</p>
+  <hr/>
+  <p><strong>工艺状态</strong></p>
+  <p>${item.procType||'-'} ${item.procRemark||''}</p>
+  <hr/>
+  <p><strong>质量确认</strong></p>
+  <p>炉温：${item.qualityOven||'-'} 尺寸：${item.qualityDim||'-'} 撕裂：${item.qualityTear||'-'}</p>
+  <p>质量备注：${item.qualityRemark||'无'}</p>
+  <hr/>
+  <p><strong>完整流转记录：</strong></p>
+  <pre>${item.flowRecord||'暂无流转记录'}</pre>
+  `;
+  document.getElementById('detailContent').innerHTML=html;
+  openModal('modalDetail');
+}
+
+function filterTable(){
+  searchText = document.getElementById('searchKey').value;
+  render();
+}
+function resetSearch(){
+  document.getElementById('searchKey').value='';
+  searchText='';
+  render();
+}
+
+function addBatch(){
+  const obj={
+    batchNo:document.getElementById('batchNo').value.trim(),
+    project:document.getElementById('project').value.trim(),
+    productType:document.getElementById('productType').value.trim(),
+    totalQty:document.getElementById('totalQty').value.trim(),
+
+    partTopCover:document.getElementById('partTopCover').value,
+    partBottomPlate:document.getElementById('partBottomPlate').value,
+    partLaminate:document.getElementById('partLaminate').value,
+    partWaterPipe:document.getElementById('partWaterPipe').value,
+
+    procType:document.getElementById('procType').value,
+    procRemark:document.getElementById('procRemark').value.trim(),
+
+    qualityOven:document.getElementById('qualityOven').value,
+    qualityDim:document.getElementById('qualityDim').value,
+    qualityTear:document.getElementById('qualityTear').value,
+    qualityRemark:document.getElementById('qualityRemark').value.trim(),
+
+    flowRecord:document.getElementById('flowRecord').value.trim()
+  };
+  if(!obj.batchNo){alert('请填写批次号');return;}
+  batchList.push(obj);
+  save();render();clearForm();
+}
+
+function save(){
+  localStorage.setItem("sampleBatchNew",JSON.stringify(batchList));
+}
+
+function del(i){
+  if(!confirm('确认删除该批次？')) return;
+  batchList.splice(i,1);
+  save();render();
+}
+
+function clearForm(){
+  document.getElementById('batchNo').value='';
+  document.getElementById('project').value='';
+  document.getElementById('productType').value='';
+  document.getElementById('totalQty').value='';
+
+  document.getElementById('partTopCover').value='';
+  document.getElementById('partBottomPlate').value='';
+  document.getElementById('partLaminate').value='';
+  document.getElementById('partWaterPipe').value='';
+
+  document.getElementById('procType').value='';
+  document.getElementById('procRemark').value='';
+
+  document.getElementById('qualityOven').value='';
+  document.getElementById('qualityDim').value='';
+  document.getElementById('qualityTear').value='';
+  document.getElementById('qualityRemark').value='';
+  document.getElementById('flowRecord').value='';
+}
+
+//初始化样例
+if(batchList.length===0){
+  batchList.push({
+    batchNo:"P20260917‑01",
+    project:"FAW‑VW",
+    productType:"散热器样件",
+    totalQty:"58",
+    partTopCover:"T1样件",
+    partBottomPlate:"T1样件",
+    partLaminate:"PPAP件",
+    partWaterPipe:"T1样件",
+    procType:"手工样件",
+    procRemark:"手工铆接、手工堆叠，钎焊炉W610，借用E2钎焊框架",
+    qualityOven:"OK",
+    qualityDim:"NG",
+    qualityTear:"待确认",
+    qualityRemark:"干检58合格4泄露；水检3复检OK，1件焊缝外漏报废；压力2.5Bar，限值3ml/min；管口、底板孔轻微超差",
+    flowRecord:"9‑24｜0｜30｜FAW‑VW VFF交样，存放研发2楼\n9‑29｜3｜0｜泄露件复检合格入库\n9‑29｜0｜8｜C型夹尺寸测量\n10‑12｜0｜2｜工装设计使用"
+  });
+  save();
+}
+
+render();
+</script>
+</body>
+</html>
