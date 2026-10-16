@@ -179,9 +179,40 @@ pre{background:#f4f6f8;padding:8px;white-space:pre-wrap;}
 <div class="box">
 <h3>已保存批次列表</h3>
 <div class="search-bar">
-  <input id="searchKey" placeholder="输入批次号/项目名称查询" oninput="filterTable()">
-  <button class="searchBtn" onclick="filterTable()">查询</button>
-  <button onclick="resetSearch()">重置查询</button>
+
+  <input id="searchKey"
+  placeholder="输入批次号/项目名称查询"
+  oninput="filterTable()">
+
+  <button class="searchBtn"
+  onclick="filterTable()">
+  查询
+  </button>
+
+  <button onclick="resetSearch()">
+  重置查询
+  </button>
+
+  <button class="outBtn"
+  onclick="exportJSON()">
+  导出JSON
+  </button>
+
+<button
+class="inBtn"
+onclick="document.getElementById('importFile').click()">
+
+导入JSON
+
+</button>
+
+<input
+id="importFile"
+type="file"
+accept=".json"
+style="display:none"
+onchange="importJSON(event)">
+
 </div>
 
 <table>
@@ -534,6 +565,82 @@ if(batchList.length===0){
   save();
 }
 
+function exportJSON(){
+
+  const data = JSON.stringify(
+    batchList,
+    null,
+    2
+  );
+
+  const blob = new Blob(
+    [data],
+    {type:"application/json"}
+  );
+
+  const a =
+  document.createElement("a");
+
+  a.href =
+  URL.createObjectURL(blob);
+
+  a.download =
+  "研发样件批次数据.json";
+
+  a.click();
+
+}
+function importJSON(event){
+
+  const file =
+  event.target.files[0];
+
+  if(!file) return;
+
+  const reader =
+  new FileReader();
+
+  reader.onload=function(e){
+
+    try{
+
+      const data =
+      JSON.parse(
+        e.target.result
+      );
+
+      if(
+        !Array.isArray(data)
+      ){
+        alert("JSON格式错误");
+        return;
+      }
+
+      if(
+        !confirm("导入后覆盖当前数据，继续吗？")
+      ){
+        return;
+      }
+
+      batchList = data;
+
+      save();
+
+      render();
+
+      alert("导入成功");
+
+    }catch(err){
+
+      alert("JSON文件错误");
+
+    }
+
+  };
+
+  reader.readAsText(file);
+
+}
 render();
 </script>
 </body>
